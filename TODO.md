@@ -1,3 +1,3 @@
 # TODO
-1. Finish 'Deep Comparison' exercise chapter 4
-1. Redo exercises from first chapter(s)
+1. Redo exercises from chapters 1...4
+1. Chapter 5 and beyond...
