@@ -1,3 +1,0 @@
-# TODO
-1. Redo exercises from chapters 1...4
-1. Chapter 5 and beyond...

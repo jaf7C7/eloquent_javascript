@@ -5,6 +5,7 @@ function deepEqual(a, b) {
 	// if one is null and the other is => false
 	// if both are the not objects and are the same value they are already caught above
 	// if both are objects and neither are null then investigate further
+	// '&& a' and '&& b' would also work as null is falsey
 	if (typeof a !== 'object' || a === null ||
 	    typeof b !== 'object' || b === null) return false
 
