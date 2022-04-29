@@ -329,6 +329,10 @@ function goalOrientedRobot({place, parcels}, route) {
 runRobot(VillageState.random(), goalOrientedRobot, mailRoute);
 // → Done in 16 turns
 
+// NOTE: The graph search algorithm above is known as a `breadth-first` search.
+//       More information on graphs and search algorithms here:
+//         https://www.youtube.com/watch?v=cWNEl4HE2OE
+
 /* Exercises */
 
 
