@@ -1,0 +1,7 @@
+#!/bin/sh
+P=$(tmux splitw -dhPF'#D' '');
+tmux set -pt"$P" remain-on-exit on \; resizep -x80
+W=$(tmux neww -dPF'#D' 'lynx https://eloquentjavascript.net/07_robot.html')
+tmux splitw -ht$W 'lynx https://en.wikipedia.org/wiki/Breadth-first_search' \;\
+	send -t$W C-r
+exec vi +'so ./.exmacros' *
