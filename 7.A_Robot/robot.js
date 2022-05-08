@@ -88,18 +88,6 @@ class VillageState {
 //
 // The following function sets the robot in motion, and runs until all parcels
 // have been delivered:
-function runRobot(state, robot, memory) {
-	for (let turns = 0;; turns++) {
-		if (state.parcels.length == 0) {
-			console.log(`Done in ${turns} turns`);
-			break;
-		}
-		let action = robot(state, memory);
-		state = state.move(action.direction);
-		memory = action.memory;
-		console.log(`Moved to ${action.direction}`);
-	}
-}
 
 // But what does the `robot` function actually look like? It must be able to
 // uniquely determine a direction at each turn, based on the given state of
@@ -233,6 +221,89 @@ function goalOrientedRobot({place, parcels}, route) {
 // For the sake of fairness, make sure you give each task to both robots,
 // rather than generating different tasks per robot.
 //
-function compareRobots(robot1, memory1, robot2, memory2) {
-	// ...
+// Modify runRobot function to return number of turns taken to complete the
+// system instead of logging to the console:
+function runRobot(state, robot, memory) {
+	for (let turns = 0;; turns++) {
+		if (state.parcels.length == 0) return turns;
+		let action = robot(state, memory);
+		state = state.move(action.direction);
+		memory = action.memory;
+	}
 }
+function compareRobots(robot1, memory1, robot2, memory2) {
+	let turns1 = [], turns2 = [];
+	for (let i = 0; i < 100; i++) {
+		let state = VillageState.random();
+		turns1.push(runRobot(state, robot1, memory1));
+		turns2.push(runRobot(state, robot2, memory2));
+	}
+	let avg1 = turns1.reduce((a, b) => a + b) / turns1.length;
+	let avg2 = turns2.reduce((a, b) => a + b) / turns2.length;
+	console.log("robot1: ", robot1, "\nturns: ", avg1);
+	console.log("robot2: ", robot2, "\nturns: ", avg2);
+	return (avg1 < avg2 ? "robot1" : "robot2") + " is more efficient";
+}
+
+//console.log(compareRobots(routeRobot, [], goalOrientedRobot, []));
+// → "goalOrientedRobot is more efficient"
+
+// Robot efficiency
+
+// Can you write a robot that finishes the delivery task faster than
+// goalOrientedRobot? If you observe that robot’s behavior, what obviously
+// stupid things does it do? How could those be improved?
+//
+// If you solved the previous exercise, you might want to use your
+// compareRobots function to verify whether you improved the robot.
+//
+// The main limitation with the previous robot is that it heads for each parcel
+// in turn, regardless of where that parcel is located. It could better look
+// at all the parcels and choose the closest one.
+function myRobot({place, parcels}, route) {
+	if (route.length == 0) {
+		route = parcels.map(p => {
+			let dest = p.place != place ? p.place : p.address;
+			return findRoute(roadGraph, place, dest);
+		}).reduce((a, b) => a.length < b.length ? a : b);
+	}
+	return {direction: route[0], memory: route.slice(1)};
+}
+
+//console.log(runRobot(VillageState.random(), myRobot, []));
+//console.log(compareRobots(goalOrientedRobot, [], myRobot, []));
+// → "myRobot is more efficient"
+
+// Even better results can (apparently) be obtained by preferring pickup
+// routes over deliveries.
+//
+// TODO: Why is this?
+function lazyRobot({place, parcels}, route) {
+	if (route.length == 0) {
+		// Describe a route for every parcel
+		let routes = parcels.map(parcel => {
+			if (parcel.place != place) {
+				return {route: findRoute(roadGraph, place, parcel.place),
+					pickUp: true};
+			} else {
+				return {route: findRoute(roadGraph, place, parcel.address),
+					pickUp: false};
+			}
+		});
+
+		// This determines the precedence a route gets when choosing.
+		// Route length counts negatively, routes that pick up a package
+		// get a small bonus.
+		function score({route, pickUp}) {
+			return (pickUp ? 0.5 : 0) - route.length;
+		}
+		route = routes.reduce((a, b) => score(a) > score(b) ? a : b).route;
+	}
+
+	return {direction: route[0], memory: route.slice(1)};
+}
+
+//console.log(compareRobots(myRobot, [], lazyRobot, []));
+// → "lazyRobot is more efficient"
+
+// Persistent group
