@@ -1,4 +1,0 @@
-map @n :w|!tmux respawnp -kt+ 'bash -c '\''node -i -e "$(< %)"'\'''\; send Enter\; selectp -t+
-map @c :!clear|tmux display -It+\; send Enter
-map @r :w|!tmux send -t+ C-d && { clear && node %; } 2>&1 | tmux display -It+\; send Enter
-map @s :!tmux swapp -t+ -s:+\; send -t$TMUX_PANE Enter
