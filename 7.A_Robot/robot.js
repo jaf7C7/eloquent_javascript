@@ -51,13 +51,16 @@ class VillageState {
 	constructor(place, parcels) {
 		// Current location of the robot.
 		this.place = place;
-		// `parcels` is of the form `{place: someNode, address: someOtherNode}`
+		// `parcels` is of the form:
+		// `{place: someNode, address: someOtherNode}`
 		this.parcels = parcels;
 	}
 
-	// `move` method moves the robot and returns a new `VillageState` object.
+	// `move` method moves the robot and returns a new `VillageState`
+	// object.
 	move(destination) {
-		// If the destination is not reachable the state does not change.
+		// If the destination is not reachable the state does not
+		// change.
 		if (!roadGraph[this.place].includes(destination)) return this;
 		// Any parcels at the current location are moved to the next.
 		let parcels = this.parcels.map(p => {
@@ -178,11 +181,13 @@ function findRoute(graph, from, to) {
 		let {at, route} = node;
 		for (let next of graph[at]) {
 			if (next == to) return route.concat(next);
-			// Since we are looking for short routes, and routes "grow" outwards
-			// from the starting point equally, any node which is already part
-			// of an existing route can be ignored, to avoid routes overlapping.
+			// Since we are looking for short routes, and routes
+			// "grow" outwards from the starting point equally,
+			// any node which is already part of an existing route
+			// can be ignored, to avoid routes overlapping.
 			if (!queue.some(n => n.at == next)) {
-				queue.push({at: next, route: route.concat(next)});
+				queue.push({at: next,
+				            route: route.concat(next)});
 			}
 		}
 	}
@@ -283,21 +288,26 @@ function lazyRobot({place, parcels}, route) {
 		// Describe a route for every parcel
 		let routes = parcels.map(parcel => {
 			if (parcel.place != place) {
-				return {route: findRoute(roadGraph, place, parcel.place),
-					pickUp: true};
+				return {route: findRoute(roadGraph,
+				                         place,
+				                         parcel.place),
+				        pickUp: true};
 			} else {
-				return {route: findRoute(roadGraph, place, parcel.address),
-					pickUp: false};
+				return {route: findRoute(roadGraph,
+				                         place,
+				                         parcel.address),
+				        pickUp: false};
 			}
 		});
 
 		// This determines the precedence a route gets when choosing.
-		// Route length counts negatively, routes that pick up a package
-		// get a small bonus.
+		// Route length counts negatively, routes that pick up a
+		// package get a small bonus.
 		function score({route, pickUp}) {
 			return (pickUp ? 0.5 : 0) - route.length;
 		}
-		route = routes.reduce((a, b) => score(a) > score(b) ? a : b).route;
+		route = routes.reduce((a, b) => score(a) > score(b) ?
+		                                a : b).route;
 	}
 
 	return {direction: route[0], memory: route.slice(1)};
@@ -307,3 +317,70 @@ function lazyRobot({place, parcels}, route) {
 // → "lazyRobot is more efficient"
 
 // Persistent group
+
+// Write a new class PGroup, similar to the Group class from Chapter 6,
+// which stores a set of values. Like Group, it has add, delete, and has
+// methods.
+// 
+// Its add method, however, should return a new PGroup instance with the
+// given member added and leave the old one unchanged. Similarly, delete
+// creates a new instance without a given member.
+// 
+// The class should work for values of any type, not just strings. It does
+// not have to be efficient when used with large amounts of values.
+// 
+// The constructor shouldn’t be part of the class’s interface (though
+// you’ll definitely want to use it internally). Instead, there is an
+// empty instance, PGroup.empty, that can be used as a starting value.
+//
+// The most convenient way to represent the set of member values is still
+// as an array since arrays are easy to copy.
+// 
+// When a value is added to the group, you can create a new group with a
+// copy of the original array that has the value added (for example, using
+// concat). When a value is deleted, you filter it from the array.
+// 
+// The class’s constructor can take such an array as argument and store
+// it as the instance’s (only) property.  This array is never updated.
+// 
+// To add a property (empty) to a constructor that is not a method, you
+// have to add it to the constructor after the class definition, as a
+// regular property.
+// 
+// You need only one empty instance because all empty groups are the same
+// and instances of the class don’t change. You can create many different
+// groups from that single empty group without affecting it.
+// 
+// Why do you need only one PGroup.empty value, rather than having a
+// function that creates a new, empty map every time?
+class PGroup {
+	// Your code here
+	constructor() {
+		this.members = [];
+	}
+	has(member) {
+		return this.members.includes(member);
+	}
+	delete(member) {
+		let p = new PGroup();
+		p.members = this.members.filter(m => m !== member);
+		return p;
+	}
+	add(member) {
+		let p = new PGroup();
+		p.members = this.members.concat(member);
+		return p;
+	}
+}
+
+// We only need a single `PGroup.empty` value because all instances of PGroup
+// are *persistent* and therefore immutable.
+PGroup.empty = new PGroup();
+
+let a = PGroup.empty.add("a");
+let ab = a.add("b");
+let b = ab.delete("a");
+
+console.log(b.has("b")); // → true
+console.log(a.has("b")); // → false
+console.log(b.has("a")); // → false
