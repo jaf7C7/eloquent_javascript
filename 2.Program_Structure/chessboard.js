@@ -22,32 +22,46 @@
  * a grid of the given width and height.
  */
 
+// Our chessboard is square, so has dimensions `size * size`.
 const chessboard = (size) => {
 	// Initialise a null variable of type `string`.
 	let str = '';
 
-	// We want to print a grid, so it makes sense that we
-	// need nested 'for' loops; one for each axis.
+	// We want to print a grid, so we can think in terms of
+	// `x` and `y` (or `i` and `j`) co-ordinates:
+	//	0  # # # #
+	//      1 # # # # 
+	//	2  # # # #
+	//	...
+	//        01234567...
 	//
-	// Our chessboard is square, so has dimensions `size * size`.
-	//
-	// We use simple facts about odd and even number arithmetic:
-	// 	`odd + even = odd`
-	// 	`odd + odd = even`
-	// 	`even + even = even`
-	// 	`odd + even = odd`
-	// 
-	// We can check for "odd/evenness" with the `%` (modulo) operator:
-	// 	if (x % 2 == 0) {
-	//		// x is even
-	//	} else {
-	//		// x is odd
-	//	}
-	// 
-	// This can be abbreviated with the ternary operator:
-	//	x % 2 == 0 ? /* x is even */ : /* x is odd */
+	// We use two nested 'for' loops to achieve this: The inner loop
+	// prints the chessboard pattern, and the outer loop prints a
+	// newline after each line is complete.
 	for (let j = 0; j < size; j++) {
 		for (let i = 0; i < size; i++) {
+			// We use simple facts about odd and even number
+			// arithmetic:
+			// 	`odd + even = odd`
+			// 	`odd + odd = even`
+			// 	`even + even = even`
+			// 	`odd + even = odd`
+			// 
+			// We can check for "odd/evenness" with the `%`
+			// (modulo) operator:
+			// 	if (x % 2 == 0) {
+			// 		// x is even
+			// 	} else {
+			// 		// x is odd
+			// 	}
+			// 
+			// This can be abbreviated with the ternary operator:
+			// 	x % 2 == 0 ? /* x is even */ : /* x is odd */
+			//
+			// We can then loop over the grid and print the
+			// pattern according to whether the sum of the
+			// co-ords is odd or even:
+			// 
 			// 0 + 0 is even -> ' '
 			// 0 + 1 is odd -> '#'
 			// ...
@@ -58,6 +72,7 @@ const chessboard = (size) => {
 		}
 		str += "\n";
 	}
+	// Don't forget to make the function return a value!
 	return str;
 }
 
@@ -73,4 +88,4 @@ str=`\
  # # # #
 # # # # 
 `
-console.log(chessboard(8) == str);
+console.log(chessboard(8) == str); // → `true` (passed) or `false` (failed)
